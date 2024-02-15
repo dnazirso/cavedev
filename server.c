@@ -20,6 +20,8 @@ const char *get_content_type(const char *file_path) {
             return "text/html";
         } else if (strcmp(ext, ".css") == 0) {
             return "text/css";
+        } else if (strcmp(ext, ".svg") == 0) {
+            return "image/svg+xml";
         } else if (strcmp(ext, ".js") == 0) {
             return "application/javascript";
         }
