@@ -37,15 +37,9 @@ void handle_client(int client_socket) {
     char method[16], path[256];
     sscanf(buffer, "%15s %255s", method, path);
 
-    char original_path[256];
-    strcpy(original_path, path);
-
     struct stat path_stat;
     if (stat(path, &path_stat) == 0 && S_ISDIR(path_stat.st_mode)) {
-        if (original_path[strlen(original_path) - 1] == '/') {
-            strcat(original_path, "index.html");
-            strcpy(path, original_path);
-        }
+        strcat(path, "/index.html");
     }
 
     char file_path[512];
