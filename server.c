@@ -30,21 +30,7 @@ const char *get_content_type(const char *file_path) {
     return "text/plain";
 }
 
-void handle_client(int client_socket) {
-    char buffer[BUFFER_SIZE];
-    recv(client_socket, buffer, BUFFER_SIZE, 0);
-
-    char method[16], path[256];
-    sscanf(buffer, "%15s %255s", method, path);
-
-    struct stat path_stat;
-    if (stat(path, &path_stat) == 0 && S_ISDIR(path_stat.st_mode)) {
-        strcat(path, "/index.html");
-    }
-
-    char file_path[512];
-    snprintf(file_path, sizeof(file_path), "%s%s", WEB_ROOT, path);
-
+void serve_static_file(int client_socket, const char *file_path) {
     FILE *file = fopen(file_path, "r");
     if (file != NULL) {
         const char *content_type = get_content_type(file_path);
@@ -63,6 +49,24 @@ void handle_client(int client_socket) {
         const char *not_found_response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\n404 Not Found";
         send_response(client_socket, not_found_response);
     }
+}
+
+void handle_client(int client_socket) {
+    char buffer[BUFFER_SIZE];
+    recv(client_socket, buffer, BUFFER_SIZE, 0);
+
+    char method[16], path[256];
+    sscanf(buffer, "%15s %255s", method, path);
+
+    struct stat path_stat;
+    if (stat(path, &path_stat) == 0 && S_ISDIR(path_stat.st_mode)) {
+        strcat(path, "/index.html");
+    }
+
+    char file_path[512];
+    snprintf(file_path, sizeof(file_path), "%s%s", WEB_ROOT, path);
+
+    serve_static_file(client_socket, file_path);
 
     close(client_socket);
 }
